@@ -2,9 +2,11 @@ const express = require('express')
 
 const bodyParser = require('body-parser')
 const { randomBytes } = require('crypto')
+const cors = require('cors')
 
 const app = express()
 app.use(bodyParser.json())
+app.use(cors())
 
 /**
  * For now we store commentsByPostId in "in-memory". So, on app restart the previously saved comments will be gone
@@ -38,7 +40,7 @@ app.use(bodyParser.json())
 const commentsByPostId = {}
 
 app.get('/posts/:id/comments', (req, res) => {
-   res.send(commentsByPostId[req.params.id] || [])
+    res.send(commentsByPostId[req.params.id] || [])
 })
 
 app.post('/posts/:id/comments', (req, res) => {
