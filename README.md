@@ -17,9 +17,29 @@ Create new folder --> posts
 	cd posts
 	npm init -y (generate package.json file)
 	npm install express cors axios nodemon
+
+	Run on Port --> 4000
 	
 Create new folder --> comments:
 	mkdir comments
 	cd comments
 	npm init -y (generate package.json file)
 	npm install express cors axios nodemon
+
+	Run on Port --> 4001
+
+Create a new folder ---> event-bus:  (Used for Async communication)
+	mkdir event-bus
+	cd event-bus
+	npm init -y (generate package.json file)
+	npm install express axios nodemon
+
+	Run on Port --> 4005
+
+Create a new folder ---> query:  (Used for Async communication)
+	mkdir query
+	cd query
+	npm init -y (generate package.json file)
+	npm install express cors nodemon
+
+	Run on Port --> 4002

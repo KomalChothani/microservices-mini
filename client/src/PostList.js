@@ -6,8 +6,9 @@ import CommentList from "./CommentList";
 export default () => {
     const [posts, setPosts] = useState({})
 
+    // Now For getting the posts/comments we get it through query service (4002)
     const fetchPosts = async () => {
-        const res = await axios.get('http://localhost:4000/posts')
+        const res = await axios.get('http://localhost:4002/posts')
         setPosts(res.data)
     }
 
@@ -24,7 +25,8 @@ export default () => {
                         <div className="card-body">
                             <h3>{post.title}</h3>
 
-                            <CommentList postId={post.id} />
+                            {/* Because now post contains the comments: [] as we now call query service */}
+                            <CommentList comments={post.comments} />
                             <CommentCreate postId={post.id} />
                         </div>
 
