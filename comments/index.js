@@ -53,25 +53,57 @@ app.post('/posts/:id/comments', async (req, res) => {
      */
     const comments = commentsByPostId[req.params.id] || []
 
-    // Push the comments
-    comments.push({ id: commentId, content })
+    /** 
+     * Push the comments
+     * 
+     * In this approach we store the status of comment
+    */
+    comments.push({ id: commentId, content, status: 'pending' })
 
     commentsByPostId[req.params.id] = comments
 
+    // Send the comment data to Query service
     await axios.post('http://localhost:4005/events', {
         type: 'CommentCreated',
         data: {
             id: commentId,
             content,
-            postId: req.params.id
+            postId: req.params.id,
+            status: 'pending'
         }
     })
 
     res.status(201).send(comments)
 })
 
-app.post('/events', (req, res) => {
+/**
+ * Handle the commentModerated event (Moderation Service ----> Comments Service)
+ */
+app.post('/events', async (req, res) => {
     console.log('Event Received ---> Comments', req.body.type)
+
+    const { type, data } = req.body
+
+    if (type === 'CommentModerated') {
+        const { postId, id, status, content } = data
+
+        console.log('postId ---> CommentModerated', postId)
+        
+        const comments = commentsByPostId[postId]
+        console.log('comments ---> CommentModerated', comments)
+        const comment = comments.find(comment => comment.id === id)
+        
+        console.log('comment in ---> comments', comment)
+        comment.status = status
+
+        /** Send it to the query service */
+        await axios.post('http://localhost:4005/events', {
+            type: 'CommentUpdated',
+            data: {
+                id, content, postId, status
+            }
+        })
+    }
 
     res.send({})
 })

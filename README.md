@@ -40,6 +40,17 @@ Create a new folder ---> query:  (Used for Async communication)
 	mkdir query
 	cd query
 	npm init -y (generate package.json file)
-	npm install express cors nodemon
+	npm install express cors nodemon axios
 
 	Run on Port --> 4002
+
+Create a new folder ----> moderation 
+	mkdir moderation
+	cd moderation
+	npm init -y (generate package.json file)
+	npm install express nodemon axios (Not need cors because this folder doesn't have direct communication with FE)
+
+	Run on Port --> 4003
+
+
+In this branch, We use the Approach: "Query Service only listens for 'Update' events"
