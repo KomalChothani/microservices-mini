@@ -126,3 +126,135 @@ At the last, we dockerrized all other services, Eg, client, comments, event-bus,
 		1) cd /query
 		2) docker build -t komalchothani/query . or docker build .
 		3) docker run komalchothani/query
+
+
+
+** Install Kubernetes **
+========================
+
+	Mini cube is a tool that'll start up a kubernetes cluster on our local machine.
+	You can install minikube from here: https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
+	
+	Check  about your linux system hardware name :  uname -m
+
+	Run command: 
+		kubectl version
+			(Output At last: Server Version: version.Info{Major:"1", Minor:"26", GitVersion:"v1.26.1", GitCommit:"8f94681cd294aa8cfd3407b8191f6c70214973a4", GitTreeState:"clean", BuildDate:"2023-01-18T15:51:25Z", GoVersion:"go1.19.5", Compiler:"gc", Platform:"linux/amd64"})
+
+			If In output it says something like, Unable to connect to the server: dial tcp 192.168.49.2:8443: connect: no route to host. Then do, *minikube start*
+
+	Through, kubectl command, We can interact with kubernetes cluster
+
+	** kubernetes Terminology **
+	---------------------------
+
+	kubernetes Cluster: A collection of nodes + a master to manage them
+	Node             : A virtual machine that will run our containers
+	Pod              : More or less a running container. Technically, a pod can run multiple containers
+	Deployment       : Monitors a set of pods, make sure they are running and restarts them if they crash
+	Service          : Provides an easy-to-remember URL to access a running container
+	
+
+	About Kubernetes Config files:
+	-----------------------------
+
+	. Tells kubernetes about the different Deployments, Pods, and Services (referred to as 'Objects') that we want to create
+	. Written in YAML syntax
+	. Always store these files with our project source code (Commit that changes as well) - they are documentation!
+	. We can create Objects (Services) without config files as well(But it is not a good way). Config files provides a precise definition of what your cluster        is running
+
+
+	About creating a Pod
+	---------------------
+
+	. Go to /posts directory 
+		. cd /posts
+		. Rebuild post image: 
+			docker build -t komalchothani/posts:0.0.1 .  (Here, 0.0.1 is version)
+				(Output: Successfully built 04a6349efb55, Successfully tagged komalchothani/posts:0.0.1)
+
+	. Now create the new directory named ---> infra
+		. This folder contains all the configuration, all the code related to the deployment or management of all of our different services inside there
+	. Create another folder inside infra ---> k8s
+	. Create file named ---> posts.yaml (Make sure about the indentation while writing the file)
+
+	. Go to /infra/k8s directory & open terminal
+		. Do, ls (In output, you can see post.yaml file)
+		. Then do, kubectl apply -f posts.yaml  (In o/p, you can see ---> pod/posts created)
+			. If there is any typo mistake or indentation mistake then you got error in o/p
+
+		. kubectl get pods (This command returns all the pods list)
+
+
+	About config file
+	------------------
+
+	apiVersion: v1
+	kind: Pod
+	metadata:
+  		name: posts
+	spec:
+  		containers:
+    		- name: posts
+      		  image: komalchothani/posts:0.0.1
+
+
+	1) apiVersion: v1
+		Tell kubernetes about the pool of objects that we want to take from. Here, we telling kubernetes, Look at the default V1
+	2) kind: Pod
+		The type of object we want to create
+	3) metadata: 
+		Config options for the object we are about to create
+		Run, kubectl get pods or k get pods
+	4) name: posts
+		When the pod is created, give it a name of 'posts'
+	5) spec:
+		. The exact attributes we want to apply to the object we are about to create
+		. This is very precise definition that controls exactly what should be going on inside this pod & how the pod should behave
+	6) containers: 
+		We can create many containers in a single pod
+		Ex,
+			containers:
+    			- name: posts
+      		  	  image: komalchothani/posts:0.0.1
+				- name: comment
+      		  	  image: komalchothani/comment:0.0.1
+				- name: query
+      		  	  image: komalchothani/query:0.0.1
+
+
+
+	Kubernetes common command
+	--------------------------
+
+	. docker ps                            ------------------------>  kubectl get pods
+	. docker exec -it [container id] [cmd] ------------------------>  kubectl exec -it [pod_name] [cmd]
+	. docker logs [container id]           ------------------------>  kubectl logs [pod_name]
+
+
+	. kubectl get pods
+		. Prints out information about all of the running pods
+
+	. kubectl exec -it [pod_name] [cmd]
+		. Execute the given command in a running pod
+
+		Ex, If we want to start shell inside the POD, then 
+			. kubectl exec -it posts sh (O/p bash shell open inside the pod)
+
+	. kubectl logs [pod_name]
+		. Print logs from the given pod
+
+		Ex, kubectl logs posts
+
+	. kubectl delete pod [pod_name]
+		. Deletes the given pod
+
+		Ex, kubectl delete posts (O/p, pod "posts" deleted)
+
+	. kubectl apply -f [config file name]
+		. Tells kubernetes to process the config
+
+		Ex, kubectl apply -f posts.yaml (O/p, Create the pod)
+
+	. kubectl describe pod [pod_name]
+		. Print out some information about the running pod
